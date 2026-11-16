@@ -1,0 +1,9 @@
+{
+  "appId": "org.kidschurch.checkin",
+  "appName": "Kids Check-In",
+  "webDir": "www",
+  "backgroundColor": "#4F46E5",
+  "android": {
+    "allowMixedContent": false
+  }
+}

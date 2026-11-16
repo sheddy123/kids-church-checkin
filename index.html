@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kids Church Check-In</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FBF7F0; --card:#FFFFFF; --ink:#1E2230; --muted:#686C7B; --line:#E7E0D3;
+  --brand:#3A3FB8; --brand-ink:#FFFFFF; --brand-soft:#ECEDFB;
+  --ok:#17803D; --ok-soft:#E5F4E9; --bad:#B42318; --bad-soft:#FDECEA; --warn:#9A4A06; --warn-soft:#FEF1DD;
+  --r:14px; --shadow:0 1px 2px rgba(30,34,48,.05), 0 4px 14px rgba(30,34,48,.05);
+  --nav-h:66px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand)}
+.top{position:sticky;top:0;z-index:20;background:rgba(251,247,240,.95);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;align-items:center;gap:10px}
+.top .brand{flex:1;min-width:0}
+.church{font-weight:900;font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.date{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;font-weight:700}
+.dot{width:8px;height:8px;border-radius:50%;background:#B8B8B8;display:inline-block;flex:none}
+.dot.live{background:#22A355}.dot.stale{background:#E59A1A}.dot.offline{background:#D64545}
+.iconbtn{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--card);display:grid;place-items:center;cursor:pointer;color:var(--ink);text-decoration:none;flex:none;font-size:22px;line-height:1}
+.iconbtn.on{border-color:var(--brand);color:var(--brand)}
+.iconbtn svg{width:22px;height:22px}
+main{padding:16px 16px calc(var(--nav-h) + 28px);max-width:640px;margin:0 auto}
+h1{font-size:26px;font-weight:900;margin:4px 0 2px;letter-spacing:-.01em}
+.h3{font-size:17px;font-weight:900;margin:18px 0 4px}
+.sub{color:var(--muted);margin:0 0 14px;font-weight:600}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.strong{font-weight:800}
+.mt{margin-top:10px}.mt8{margin-top:8px}.mt16{margin-top:16px}
+.center{text-align:center}
+.grow{flex:1;min-width:0}
+.row{display:flex;align-items:center;gap:8px}
+.wrap{flex-wrap:wrap}
+.between{justify-content:space-between}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:50px;padding:0 18px;border-radius:12px;border:0;background:var(--brand);color:var(--brand-ink);font-weight:800;font-size:16px;cursor:pointer;text-decoration:none;text-align:center}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.wide{width:100%}
+.btn.ghost{background:var(--brand-soft);color:var(--brand)}
+.btn.line{background:var(--card);color:var(--ink);border:1.5px solid var(--line)}
+.btn.ok{background:var(--ok)}
+.btn.bad{background:var(--bad)}
+.btn.dangerline{background:var(--card);color:var(--bad);border:1.5px solid #F0C4BF}
+.btn.wa{background:#1C9E4E}
+.btn.small{min-height:38px;padding:0 12px;font-size:14px;border-radius:10px}
+.linkbtn{background:none;border:0;color:var(--muted);font-weight:800;font-size:14px;padding:8px 0 0;cursor:pointer;text-decoration:underline}
+
+/* inputs */
+.field{display:block;margin:0 0 14px}
+.field>span{display:block;font-weight:800;font-size:14px;margin:0 0 6px}
+.field em{font-style:normal;font-weight:600}
+.input{width:100%;min-height:50px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);padding:0 14px;font-size:16px;outline:none;-webkit-appearance:none;appearance:none}
+select.input{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 22px,calc(100% - 13px) 22px;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+.input:focus{border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.input.err{border-color:var(--bad)}
+.search{position:relative;margin-bottom:10px}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:20px;height:20px;color:var(--muted);pointer-events:none}
+.search .input{padding-left:44px}
+.checkline{display:flex;gap:10px;align-items:center;font-weight:700;margin:4px 0 16px}
+.checkline input{width:22px;height:22px;accent-color:var(--brand)}
+
+/* cards & chips */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px;box-shadow:var(--shadow)}
+button.card{width:100%;text-align:left;cursor:pointer;display:block}
+button.card:active{transform:scale(.99)}
+.list{display:grid;gap:10px;margin-top:12px}
+.fname{font-size:17px;font-weight:900}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#F3EFE7;font-weight:800;font-size:14px}
+.chip.in{background:var(--ok-soft);color:var(--ok)}
+.gdot{width:10px;height:10px;border-radius:50%;display:inline-block;flex:none}
+.grp{display:inline-flex;align-items:center;padding:2px 9px;border-radius:999px;font-weight:900;font-size:13px;white-space:nowrap}
+.tag{font-size:12px;font-weight:900;padding:3px 8px;border-radius:999px;background:#F3EFE7;color:var(--muted);white-space:nowrap}
+.tag.ok{background:var(--ok-soft);color:var(--ok)}
+.code{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-weight:700;letter-spacing:.06em}
+.alert{display:inline-flex;gap:4px;align-items:center;color:var(--bad);font-weight:800;font-size:14px}
+.banner{border-radius:12px;padding:12px 14px;font-weight:700;margin-bottom:12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.banner.warn{background:var(--warn-soft);color:var(--warn)}
+.banner.bad{background:var(--bad-soft);color:var(--bad)}
+.banner.ok{background:var(--ok-soft);color:var(--ok)}
+.banner[hidden]{display:none}
+.empty{text-align:center;padding:28px 16px;border:1.5px dashed var(--line);border-radius:var(--r);margin-top:12px}
+.empty-t{font-weight:900;font-size:17px;margin-bottom:4px}
+.skel{height:74px;border-radius:var(--r);background:linear-gradient(90deg,#F1ECE3 0%,#F8F4EE 50%,#F1ECE3 100%);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+
+/* pickup */
+.code-input{width:100%;height:84px;text-align:center;font-family:"Space Mono",ui-monospace,Menlo,monospace;font-weight:700;font-size:44px;letter-spacing:.35em;text-transform:uppercase;border:2px solid var(--line);border-radius:16px;background:var(--card);outline:none;padding:0 0 0 .35em}
+.code-input:focus{border-color:var(--brand);box-shadow:0 0 0 4px var(--brand-soft)}
+.code-input::placeholder{color:#D4CDBF}
+.bigcode{font-family:"Space Mono",ui-monospace,Menlo,monospace;font-weight:700;font-size:62px;letter-spacing:.12em;line-height:1.05;margin:4px 0}
+.match{border-radius:16px;padding:16px;margin-top:14px}
+.match.ok{background:var(--ok-soft);border:2px solid #A6D8B5}
+.match.bad{background:var(--bad-soft);border:2px solid #F2B4AD}
+.match h2{margin:0 0 4px;font-size:21px;font-weight:900}
+.match.ok h2{color:var(--ok)}.match.bad h2{color:var(--bad)}
+.kid{display:flex;align-items:flex-start;gap:12px;padding:12px;background:var(--card);border-radius:12px;margin-top:8px;border:1px solid var(--line)}
+.kid input[type=checkbox]{width:26px;height:26px;margin:1px 0 0;accent-color:var(--ok);flex:none}
+.kid .name{font-weight:900;font-size:18px;margin-bottom:3px}
+.kid.done,.kid.out{opacity:.6}
+.donebox{background:var(--ok);color:#fff;border-radius:16px;padding:16px;margin-top:14px}
+.donebox .t{font-size:20px;font-weight:900}
+.counts{display:flex;gap:8px;margin:0 0 12px}
+
+/* stickers */
+.sticker{display:flex;align-items:center;gap:10px;background:var(--card);border:2.5px solid;border-radius:12px;padding:10px 12px;margin-top:8px}
+.sticker .sname{font-weight:900;font-size:18px;flex:1;min-width:0}
+.sticker .sgrp{font-weight:800;color:var(--muted);font-size:14px}
+.sticker .scode{font-size:20px}
+.sdot{width:16px;height:16px;border-radius:50%;flex:none}
+
+/* rooms */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.stat{border-radius:14px;padding:12px 14px}
+.stat .n{font-size:30px;font-weight:900;line-height:1}
+.stat .l{font-weight:800;font-size:14px;margin-top:4px}
+.seg{display:flex;gap:6px;overflow-x:auto;margin:14px -16px 2px;padding:0 16px 4px;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:0 0 auto;min-height:40px;padding:0 14px;border-radius:999px;border:1.5px solid var(--line);background:var(--card);font-weight:800;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.roomrow{display:flex;gap:12px;align-items:center}
+.roomrow .name{font-weight:900;font-size:17px}
+details.card summary{font-weight:900;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.card summary::-webkit-details-marker{display:none}
+details.card[open] summary{margin-bottom:6px}
+.outrow{padding:10px 0;border-top:1px solid var(--line)}
+.outrow:first-of-type{border-top:0}
+
+/* forms */
+.kidrow{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:10px}
+.kidrow .g{display:grid;grid-template-columns:1fr 118px;gap:8px}
+.steps{margin:6px 0 0;padding-left:20px}
+.steps li{margin:6px 0;font-weight:600}
+
+/* nav */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;height:var(--nav-h);background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:30}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:var(--muted);font-weight:800;font-size:12px}
+nav.tabs a.on{color:var(--brand)}
+nav.tabs svg{width:24px;height:24px}
+
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(20,22,32,.45);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.overlay.open{display:flex}
+.sheet{background:var(--bg);width:100%;max-width:640px;max-height:92vh;overflow:auto;-webkit-overflow-scrolling:touch;border-radius:20px 20px 0 0;padding:16px 16px 28px}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.sheet-head h2{margin:0;font-size:22px;font-weight:900}
+@media(min-width:700px){.overlay{align-items:center}.sheet{border-radius:20px}}
+
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 14px);transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:12px 16px;border-radius:12px;font-weight:800;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:70;max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="church" id="church">Kids Church</div>
+    <div class="date"><span class="dot" id="dot"></span><span id="date"></span><span>·</span><span id="statusText">Connecting…</span></div>
+  </div>
+  <a class="iconbtn" href="#setup" data-view="setup" aria-label="Setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg></a>
+</header>
+
+<main>
+  <div id="banner"></div>
+  <div id="view"></div>
+</main>
+
+<nav class="tabs" aria-label="Sections">
+  <a href="#checkin" data-view="checkin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>Check in</a>
+  <a href="#pickup" data-view="pickup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>Pickup</a>
+  <a href="#rooms" data-view="rooms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Rooms</a>
+  <a href="#families" data-view="families"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Families</a>
+</nav>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function () {
+'use strict';
+
+/* ---------- Config ---------- */
+const GROUPS = [
+  { id: '1-5',   ages: '1–5',   name: 'Yellow', color: '#F2B705', ink: '#3B2C00', soft: '#FDF3D0' },
+  { id: '6-7',   ages: '6–7',   name: 'Green',  color: '#2E9E5B', ink: '#FFFFFF', soft: '#DFF3E6' },
+  { id: '8-9',   ages: '8–9',   name: 'Blue',   color: '#2F6FD6', ink: '#FFFFFF', soft: '#E0EAFB' },
+  { id: '10-12', ages: '10–12', name: 'Red',    color: '#D64545', ink: '#FFFFFF', soft: '#FBE3E3' },
+];
+const G = Object.fromEntries(GROUPS.map(g => [g.id, g]));
+const CODE_CHARS = 'ACDEFHJKMNPRTUVWXY3479'; // no look-alikes (0/O, 1/I/L, 2/Z, 5/S, 6/G, 8/B)
+const VIEWS = ['checkin', 'pickup', 'rooms', 'families', 'setup'];
+
+/* ---------- State ---------- */
+const S = {
+  db: null, user: null, myId: null, canWrite: null, readOnly: false,
+  status: 'connecting', liveF: false, liveC: false, loadTimer: null,
+  unsubs: [], unsubToday: null,
+  families: new Map(), familiesLoaded: false,
+  checkins: [], checkinsLoaded: false,
+  settings: { churchName: '', countryCode: '44' },
+  today: todayStr(),
+  view: 'checkin',
+  q: { checkin: '', families: '', lost: '' },
+  pickupCode: '', puSkip: new Set(), puWho: '', puDone: null,
+  roomFilter: 'all',
+  names: {}, nameReq: new Set(),
+  busy: false, submitMode: '',
+};
+
+/* ---------- Helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const str = v => (typeof v === 'string' ? v : (v == null ? '' : String(v)));
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+function todayStr(d = new Date()) { const p = n => String(n).padStart(2, '0'); return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()); }
+function rid() { const a = new Uint8Array(9); crypto.getRandomValues(a); return Array.from(a, b => (b % 36).toString(36)).join(''); }
+function fmtTime(ms) { if (!ms) return ''; try { return new Date(ms).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }); } catch (e) { return ''; } }
+function first(name) { return str(name).trim().split(/\s+/)[0] || ''; }
+function joinNames(a) { a = a.filter(Boolean); if (a.length <= 1) return a[0] || ''; return a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+function splitNames(s) { return str(s).split(/[,;\n]+|\s+&\s+|\s+and\s+/i).map(x => x.trim()).filter(Boolean); }
+function digitsOnly(p) { return str(p).replace(/\D/g, ''); }
+function maskPhone(p) { const d = digitsOnly(p); return d ? '••• ' + d.slice(-3) : ''; }
+function intlNumber(p) {
+  let s = str(p).trim().replace(/[^\d+]/g, '');
+  if (s.startsWith('+')) return s.slice(1);
+  if (s.startsWith('00')) return s.slice(2);
+  const cc = digitsOnly(S.settings.countryCode) || '44';
+  if (s.startsWith('0')) return cc + s.slice(1);
+  return s;
+}
+function smsHref(phone, body) { return 'sms:' + str(phone).replace(/[^\d+]/g, '') + '?&body=' + encodeURIComponent(body); }
+function waHref(phone, body) { return 'https://wa.me/' + intlNumber(phone) + '?text=' + encodeURIComponent(body); }
+function telHref(phone) { return 'tel:' + str(phone).replace(/[^\d+]/g, ''); }
+function grpBadge(id) { const g = G[id]; return g ? '<span class="grp" style="background:' + g.color + ';color:' + g.ink + '">' + g.ages + '</span>' : ''; }
+function gdot(id) { const g = G[id]; return '<span class="gdot" style="background:' + (g ? g.color : '#BBB') + '"></span>'; }
+function notesHtml(n) { return n ? '<span class="alert">⚠ ' + esc(n) + '</span>' : ''; }
+function emptyHtml(t, s) { return '<div class="empty"><div class="empty-t">' + esc(t) + '</div><div class="muted">' + esc(s) + '</div></div>'; }
+function skelHtml(n = 3) { return '<div class="list">' + '<div class="skel"></div>'.repeat(n) + '</div>'; }
+function volunteerName(id) { if (!id) return ''; return S.names[id] || ''; }
+
+function pickupMessage(parentName, names, code) {
+  const hi = first(parentName) ? 'Hi ' + first(parentName) + ', ' : '';
+  const where = S.settings.churchName ? ' at ' + S.settings.churchName : '';
+  return hi + joinNames(names) + (names.length > 1 ? ' are' : ' is') + ' checked in to Kids Church' + where + '. Your pickup code is ' + code + '. Please show this code when you collect.';
+}
+
+function genCode() {
+  const used = new Set(S.checkins.map(c => c.code));
+  for (let t = 0; t < 60; t++) {
+    const a = new Uint32Array(4); crypto.getRandomValues(a);
+    const c = Array.from(a, x => CODE_CHARS[x % CODE_CHARS.length]).join('');
+    if (!used.has(c)) return c;
+  }
+  return Array.from(crypto.getRandomValues(new Uint32Array(5)), x => CODE_CHARS[x % CODE_CHARS.length]).join('');
+}
+
+/* ---------- Normalise untrusted shared data ---------- */
+function normFamily(id, d) {
+  d = d || {};
+  const kids = Array.isArray(d.children) ? d.children.filter(k => k && typeof k === 'object').map((k, i) => ({
+    id: str(k.id).slice(0, 40) || ('k' + i), name: str(k.name).slice(0, 60), group: G[k.group] ? k.group : '', notes: str(k.notes).slice(0, 200)
+  })) : [];
+  return { id, parentName: str(d.parentName).slice(0, 80), phone: str(d.phone).slice(0, 30), pickups: str(d.pickups).slice(0, 200), children: kids, createdAt: +d.createdAt || 0 };
+}
+function normCheckin(id, d) {
+  d = d || {};
+  return {
+    id, date: str(d.date), code: str(d.code).toUpperCase().slice(0, 8), familyId: str(d.familyId), childId: str(d.childId),
+    childName: str(d.childName).slice(0, 60) || '(no name)', group: G[d.group] ? d.group : '', notes: str(d.notes).slice(0, 200),
+    parentName: str(d.parentName).slice(0, 80), phone: str(d.phone).slice(0, 30), pickups: str(d.pickups).slice(0, 200),
+    visitor: !!d.visitor, status: d.status === 'out' ? 'out' : 'in', inAt: +d.inAt || 0, inBy: str(d.inBy), outAt: +d.outAt || 0,
+    outBy: str(d.outBy), collectedBy: str(d.collectedBy).slice(0, 80), override: !!d.override, overrideNote: str(d.overrideNote).slice(0, 240)
+  };
+}
+function activeByChild() { const m = new Map(); for (const c of S.checkins) if (c.status === 'in') m.set(c.familyId + '|' + c.childId, c); return m; }
+
+/* ---------- Writes ---------- */
+async function write(fn) {
+  try { return await fn(); }
+  catch (e) {
+    if (e && e.code === 'unavailable') { await sleep(400 + Math.random() * 900); return await fn(); }
+    throw e;
+  }
+}
+function handleErr(e) {
+  const code = e && e.code;
+  if (code === 'invalid_argument' && S.canWrite !== true) { S.readOnly = true; renderBanner(); toast('You can view the register but not change it.'); }
+  else if (code === 'invalid_argument') toast('That could not be saved. Please try again.');
+  else if (code === 'quota_exceeded') toast('Storage is full. Delete old records in Setup.');
+  else if (code === 'resource_exhausted') toast('Too many changes at once. Wait a moment and try again.');
+  else if (code === 'revoked') { S.status = 'offline'; renderHeader(); renderBanner(); toast('Access to the register has ended on this phone.'); }
+  else toast('Could not save. Check the connection and try again.');
+}
+function guardWrite() {
+  if (!S.db) { toast('Not connected to the register.'); return false; }
+  if (S.readOnly) { toast('View only. Ask your admin for Editor access.'); return false; }
+  if (S.busy) return false;
+  return true;
+}
+async function busy(btn, label, fn) {
+  S.busy = true;
+  const old = btn ? btn.innerHTML : '';
+  if (btn) { btn.disabled = true; btn.textContent = label; }
+  try { return await fn(); }
+  catch (e) { handleErr(e); }
+  finally { S.busy = false; if (btn && btn.isConnected) { btn.disabled = false; btn.innerHTML = old; } }
+}
+
+/* ---------- UI primitives ---------- */
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 2800); }
+function openModal(html) { $('#sheet').innerHTML = html; $('#overlay').classList.add('open'); document.body.style.overflow = 'hidden'; $('#sheet').scrollTop = 0; }
+function closeModal() { $('#overlay').classList.remove('open'); $('#sheet').innerHTML = ''; document.body.style.overflow = ''; }
+function modalOpen() { return $('#overlay').classList.contains('open'); }
+function sheetHead(title) { return '<div class="sheet-head"><h2>' + esc(title) + '</h2><button class="iconbtn" data-act="close" aria-label="Close">×</button></div>'; }
+async function copyText(text) {
+  try { await navigator.clipboard.writeText(text); toast('Copied'); }
+  catch (e) {
+    openModal(sheetHead('Copy this') + '<p class="muted small">Press and hold to select, then copy.</p><textarea class="input" style="min-height:220px;padding:12px" readonly>' + esc(text) + '</textarea>');
+  }
+}
+
+/* ---------- Header / banner ---------- */
+function renderHeader() {
+  $('#church').textContent = S.settings.churchName || 'Kids Church';
+  let d = ''; try { d = new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }); } catch (e) {}
+  $('#date').textContent = d;
+  $('#dot').className = 'dot ' + ({ live: 'live', stale: 'stale', offline: 'offline', signedout: 'offline' }[S.status] || '');
+  $('#statusText').textContent = ({ connecting: 'Connecting…', live: 'Live', stale: 'Slow connection', offline: 'Offline', signedout: 'Not signed in' })[S.status] || '';
+}
+function renderBanner() {
+  let h = '';
+  if (S.status === 'stale') h += '<div class="banner warn">Can’t reach the register yet, so it may be out of date. Keep a paper list as backup.</div>';
+  if (S.status === 'offline' && S.db) h += '<div class="banner bad"><span>Connection to the register was lost.</span><button class="btn small line" data-act="reconnect">Reconnect</button></div>';
+  if (S.readOnly && S.db) h += '<div class="banner warn">View only. To check children in or out, ask your admin to invite you as an Editor.</div>';
+  $('#banner').innerHTML = h;
+}
+
+/* ---------- Views ---------- */
+const searchIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m21 21-4.3-4.3"/></svg>';
+
+const VIEW_HTML = {
+  checkin: () =>
+    '<h1>Check in</h1><p class="sub">Find the family, tap it, check the children in.</p>' +
+    '<div class="search">' + searchIcon + '<input id="ci-q" class="input" type="search" placeholder="Parent, child or phone" autocomplete="off" autocorrect="off" spellcheck="false"></div>' +
+    '<button class="btn ghost wide" data-act="new-family">+ New family or visitor</button>' +
+    '<div id="ci-results"></div>',
+  pickup: () =>
+    '<h1>Pickup</h1><p class="sub">Type the 4-character code the parent shows you.</p>' +
+    '<div id="pu-counts"></div>' +
+    '<input id="pu-code" class="code-input" maxlength="4" placeholder="····" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" aria-label="Pickup code">' +
+    '<div id="pu-result"></div>' +
+    '<button class="btn line wide mt16" data-act="lost-code">Parent lost their code?</button>',
+  rooms: () =>
+    '<h1>Rooms</h1><p class="sub">Who is in each group right now.</p><div id="rooms-body"></div>',
+  families: () =>
+    '<h1>Families</h1><p class="sub">Saved families. Tap one to edit.</p>' +
+    '<div class="search">' + searchIcon + '<input id="fam-q" class="input" type="search" placeholder="Search families" autocomplete="off" autocorrect="off" spellcheck="false"></div>' +
+    '<button class="btn ghost wide" data-act="new-family-only">+ Add a family</button>' +
+    '<div id="fam-list"></div>',
+  setup: () => setupHtml(),
+};
+
+function renderView() {
+  document.querySelectorAll('[data-view]').forEach(a => a.classList.toggle('on', a.dataset.view === S.view));
+  const v = $('#view');
+  if (S.status === 'signedout') {
+    v.innerHTML = '<div class="card mt16"><h1 style="font-size:22px">Sign in to open the register</h1><p class="muted">This register is private. Open this link while signed in to Claude with the email address your church admin invited. If you are the admin, open it from your own Claude account.</p></div>';
+    refreshChrome(); return;
+  }
+  v.innerHTML = VIEW_HTML[S.view]();
+  if (S.view === 'checkin') $('#ci-q').value = S.q.checkin;
+  if (S.view === 'pickup') $('#pu-code').value = S.pickupCode;
+  if (S.view === 'families') $('#fam-q').value = S.q.families;
+  refresh();
+}
+function refreshChrome() { renderHeader(); renderBanner(); }
+function refresh() {
+  refreshChrome();
+  if (S.status === 'signedout') return;
+  ({ checkin: renderCheckinResults, pickup: renderPickup, rooms: renderRooms, families: renderFamilies, setup: renderSetupDyn }[S.view] || (() => {}))();
+}
+
+/* ----- Check-in ----- */
+function familyMatches(q) {
+  const arr = [...S.families.values()];
+  const n = q.trim().toLowerCase(); const nd = n.replace(/\D/g, '');
+  let res = arr;
+  if (n) res = arr.filter(f => f.parentName.toLowerCase().includes(n) || f.pickups.toLowerCase().includes(n) ||
+    f.children.some(k => k.name.toLowerCase().includes(n)) || (nd.length >= 3 && digitsOnly(f.phone).includes(nd)));
+  return res.sort((a, b) => a.parentName.localeCompare(b.parentName));
+}
+function familyCard(f, act) {
+  const kids = f.children.map(k => {
+    const c = act.get(f.id + '|' + k.id);
+    return c ? '<span class="chip in">' + gdot(k.group) + esc(k.name) + ' · <span class="code">' + esc(c.code) + '</span></span>'
+             : '<span class="chip">' + gdot(k.group) + esc(k.name) + '</span>';
+  }).join('');
+  const allIn = f.children.length && f.children.every(k => act.has(f.id + '|' + k.id));
+  return '<button class="card" data-act="open-family" data-id="' + esc(f.id) + '"><div class="row between"><span class="fname">' + esc(f.parentName || '(no name)') + '</span>' +
+    (allIn ? '<span class="tag ok">All in</span>' : '<span class="muted small">' + esc(maskPhone(f.phone)) + '</span>') + '</div><div class="chips">' + kids + '</div></button>';
+}
+function renderCheckinResults() {
+  const el = $('#ci-results'); if (!el) return;
+  if (!S.db) { el.innerHTML = S.status === 'connecting' ? skelHtml() : ''; return; }
+  if (!S.familiesLoaded) { el.innerHTML = skelHtml(); return; }
+  if (!S.families.size) { el.innerHTML = emptyHtml('No families yet', 'Tap “New family or visitor” to add the first one. Saved families are here next week, so you just search and tap.'); return; }
+  const list = familyMatches(S.q.checkin);
+  if (!list.length) { el.innerHTML = emptyHtml('No match', 'Check the spelling, or add them as a new family.'); return; }
+  const act = activeByChild();
+  el.innerHTML = '<div class="list">' + list.slice(0, 80).map(f => familyCard(f, act)).join('') + '</div>' +
+    (list.length > 80 ? '<p class="muted small center">Showing 80 of ' + list.length + '. Type to narrow down.</p>' : '');
+}
+function openFamilySheet(id) {
+  const f = S.families.get(id); if (!f) return;
+  const act = activeByChild();
+  const kids = f.children.map(k => {
+    const c = act.get(f.id + '|' + k.id);
+    return '<label class="kid' + (c ? ' done' : '') + '"><input type="checkbox" name="kid" value="' + esc(k.id) + '"' + (c ? ' disabled' : ' checked') + '>' +
+      '<div class="grow"><div class="name">' + esc(k.name) + '</div><div class="row wrap">' + grpBadge(k.group) + notesHtml(k.notes) + '</div>' +
+      (c ? '<div class="muted small mt8">Already in · code <span class="code">' + esc(c.code) + '</span></div>' : '') + '</div></label>';
+  }).join('');
+  const anyLeft = f.children.some(k => !act.has(f.id + '|' + k.id));
+  openModal(sheetHead(f.parentName || 'Family') +
+    '<form data-form="checkin" data-id="' + esc(f.id) + '">' +
+    (f.children.length ? kids : '<p class="muted">No children saved for this family yet.</p>') +
+    (f.pickups ? '<p class="muted small mt">Also allowed to collect: <strong>' + esc(f.pickups) + '</strong></p>' : '') +
+    '<button class="btn ok wide mt16" type="submit"' + (anyLeft ? '' : ' disabled') + '>' + (anyLeft ? 'Check in' : 'Everyone is checked in') + '</button>' +
+    '<button type="button" class="btn line wide mt" data-act="edit-family" data-id="' + esc(f.id) + '">Edit family details</button>' +
+    '</form>');
+}
+async function doCheckin(fam, kidIds, isVisitor) {
+  const act = activeByChild();
+  const kids = fam.children.filter(k => kidIds.includes(k.id) && !act.has(fam.id + '|' + k.id));
+  if (!kids.length) { toast('Those children are already checked in.'); return; }
+  const sibling = S.checkins.find(c => c.familyId === fam.id && c.status === 'in');
+  const code = sibling ? sibling.code : genCode();
+  const now = Date.now();
+  for (const k of kids) {
+    const ref = S.db.collection('checkins').doc();
+    const body = {
+      date: S.today, code, familyId: fam.id, childId: k.id, childName: k.name, group: k.group, notes: k.notes,
+      parentName: fam.parentName, phone: fam.phone, pickups: fam.pickups, visitor: !!isVisitor,
+      status: 'in', inAt: now, inBy: S.myId || '', outAt: 0, outBy: '', collectedBy: '', override: false, overrideNote: ''
+    };
+    await write(() => ref.set(body));
+  }
+  showSuccess(fam, kids, code, !!sibling);
+}
+function stickerHtml(k, code) {
+  const g = G[k.group] || { color: '#BBB', ages: '' };
+  return '<div class="sticker" style="border-color:' + g.color + '"><span class="sdot" style="background:' + g.color + '"></span><span class="sname">' + esc(k.name) + '</span>' +
+    '<span class="sgrp">' + esc(g.ages) + '</span><span class="code scode">' + esc(code) + '</span>' + (k.notes ? '<span class="alert" title="' + esc(k.notes) + '">⚠</span>' : '') + '</div>';
+}
+function showSuccess(fam, kids, code, reused) {
+  const names = kids.map(k => k.name);
+  const msg = pickupMessage(fam.parentName, names, code);
+  const hasPhone = digitsOnly(fam.phone).length >= 7;
+  openModal(sheetHead('Checked in ✓') +
+    '<div class="card center"><div class="muted strong">Pickup code</div><div class="bigcode">' + esc(code) + '</div><div class="muted small strong">for ' + esc(joinNames(names)) + '</div>' +
+    (reused ? '<div class="muted small mt8">Same code as their brother or sister already here.</div>' : '') + '</div>' +
+    '<div class="h3">1. Label each child</div><p class="muted small" style="margin:0">Write the name and code on a sticker and put it on the child’s back. Use the group colour if you have coloured stickers.</p>' +
+    kids.map(k => stickerHtml(k, code)).join('') +
+    '<div class="h3">2. Send the code to ' + esc(first(fam.parentName) || 'the parent') + '</div>' +
+    (hasPhone ? '<div class="grid2 mt8"><a class="btn wa" href="' + esc(waHref(fam.phone, msg)) + '" target="_blank" rel="noopener">WhatsApp</a><a class="btn ghost" href="' + esc(smsHref(fam.phone, msg)) + '">Text (SMS)</a></div>' +
+      '<p class="muted small" style="margin:8px 0 0">Number: ' + esc(fam.phone) + '. If the buttons don’t open, copy the message and paste it.</p>' : '<p class="muted small">No mobile number saved.</p>') +
+    '<button class="btn line wide mt" data-act="copy" data-text="' + esc(msg) + '">Copy message</button>' +
+    '<p class="muted small">No signal? Ask the parent to take a photo of this screen.</p>' +
+    '<button class="btn wide mt" data-act="close">Done</button>');
+}
+
+/* ----- Family form ----- */
+function kidRow(k) {
+  return '<div class="kidrow" data-kid="' + esc(k.id) + '"><div class="g">' +
+    '<input class="input" name="kname" placeholder="Child’s first name" value="' + esc(k.name) + '" autocomplete="off" autocorrect="off" aria-label="Child’s first name">' +
+    '<select class="input" name="kgroup" aria-label="Age group"><option value="">Age…</option>' + GROUPS.map(g => '<option value="' + g.id + '"' + (k.group === g.id ? ' selected' : '') + '>' + g.ages + '</option>').join('') + '</select></div>' +
+    '<input class="input mt8" name="knotes" placeholder="Allergies or medical needs (optional)" value="' + esc(k.notes) + '" autocomplete="off" aria-label="Allergies or medical needs">' +
+    '<button type="button" class="linkbtn" data-act="remove-kid">Remove this child</button></div>';
+}
+function openFamilyForm(id, opts) {
+  opts = opts || {};
+  const f = id ? S.families.get(id) : null;
+  const kids = f && f.children.length ? f.children : [{ id: rid(), name: '', group: '', notes: '' }];
+  openModal(sheetHead(f ? 'Edit family' : 'New family') +
+    '<form data-form="family"' + (f ? ' data-id="' + esc(f.id) + '"' : '') + ' novalidate>' +
+    '<label class="field"><span>Parent or carer’s name</span><input class="input" name="parentName" value="' + esc(f ? f.parentName : '') + '" autocomplete="off" autocorrect="off"></label>' +
+    '<label class="field"><span>Mobile number</span><input class="input" name="phone" type="tel" inputmode="tel" value="' + esc(f ? f.phone : '') + '" placeholder="07…" autocomplete="off"></label>' +
+    '<label class="field"><span>Other adults allowed to collect <em class="muted">(optional)</em></span><input class="input" name="pickups" value="' + esc(f ? f.pickups : '') + '" placeholder="e.g. Grandma Joy, Uncle Sam" autocomplete="off"></label>' +
+    '<div class="field"><span>Children</span><div id="kidrows">' + kids.map(kidRow).join('') + '</div>' +
+    '<button type="button" class="btn ghost wide" data-act="add-kid">+ Add another child</button></div>' +
+    (f ? '' : '<label class="checkline"><input type="checkbox" name="save" checked> Save this family for future Sundays</label>') +
+    '<div id="form-err" class="banner bad" hidden></div>' +
+    (f ? '<button class="btn wide" type="submit" data-mode="save">Save changes</button><button class="btn dangerline wide mt" type="button" data-act="delete-family" data-id="' + esc(f.id) + '">Delete family</button>'
+       : (opts.saveOnly ? '<button class="btn wide" type="submit" data-mode="save">Save family</button>'
+                        : '<button class="btn ok wide" type="submit" data-mode="checkin">Save and check in</button><button class="btn line wide mt" type="submit" data-mode="save">Save only</button>')) +
+    '</form>');
+}
+function readFamilyForm(form) {
+  const val = n => { const el = form.elements.namedItem(n); return el ? el.value.trim() : ''; };
+  form.querySelectorAll('.err').forEach(e => e.classList.remove('err'));
+  const data = { parentName: val('parentName').slice(0, 80), phone: val('phone').slice(0, 30), pickups: val('pickups').slice(0, 200), children: [] };
+  const errs = [];
+  if (!data.parentName) { errs.push('Add the parent or carer’s name.'); form.elements.namedItem('parentName').classList.add('err'); }
+  if (digitsOnly(data.phone).length < 7) { errs.push('Add a mobile number.'); form.elements.namedItem('phone').classList.add('err'); }
+  form.querySelectorAll('.kidrow').forEach(r => {
+    const n = r.querySelector('[name=kname]'), g = r.querySelector('[name=kgroup]'), no = r.querySelector('[name=knotes]');
+    const k = { id: r.dataset.kid || rid(), name: n.value.trim().slice(0, 60), group: g.value, notes: no.value.trim().slice(0, 200) };
+    if (!k.name && !k.group && !k.notes) return;
+    if (!k.name) { n.classList.add('err'); errs.push('Each child needs a first name.'); }
+    if (!G[k.group]) { g.classList.add('err'); errs.push('Choose an age group for each child.'); }
+    data.children.push(k);
+  });
+  if (!data.children.length) errs.push('Add at least one child.');
+  return { data, errs: [...new Set(errs)] };
+}
+async function submitFamily(form, btn) {
+  const { data, errs } = readFamilyForm(form);
+  const errEl = $('#form-err');
+  if (errs.length) { errEl.textContent = errs.join(' '); errEl.hidden = false; errEl.scrollIntoView({ block: 'nearest' }); return; }
+  errEl.hidden = true;
+  const id = form.dataset.id;
+  const mode = S.submitMode || 'save';
+  const now = Date.now();
+  await busy(btn, 'Saving…', async () => {
+    if (id) {
+      const old = S.families.get(id);
+      await write(() => S.db.collection('families').doc(id).set(Object.assign({}, data, { createdAt: (old && old.createdAt) || now, updatedAt: now })));
+      closeModal(); toast('Family saved');
+      return;
+    }
+    const saveBox = form.elements.namedItem('save');
+    const save = saveBox ? saveBox.checked : true;
+    let fam;
+    if (save) {
+      const ref = S.db.collection('families').doc();
+      await write(() => ref.set(Object.assign({}, data, { createdAt: now, updatedAt: now })));
+      fam = Object.assign({ id: ref.id }, data);
+    } else {
+      fam = Object.assign({ id: 'v_' + rid() }, data);
+    }
+    if (mode === 'checkin') { await doCheckin(fam, fam.children.map(k => k.id), !save); }
+    else if (!save) { toast('Nothing saved. Tick “Save this family” or use “Save and check in”.'); }
+    else { closeModal(); toast('Family saved'); }
+  });
+}
+
+/* ----- Pickup ----- */
+function renderPickupCounts() {
+  const el = $('#pu-counts'); if (!el) return;
+  if (!S.checkinsLoaded) { el.innerHTML = ''; return; }
+  const inN = S.checkins.filter(c => c.status === 'in').length, outN = S.checkins.length - inN;
+  el.innerHTML = '<div class="counts"><span class="tag ok">' + inN + ' still in</span><span class="tag">' + outN + ' collected</span></div>';
+}
+function renderPickup() {
+  renderPickupCounts();
+  const el = $('#pu-result'); if (!el) return;
+  const code = S.pickupCode;
+  if (S.puDone && !code) {
+    el.innerHTML = '<div class="donebox"><div class="t">✓ Released</div><div class="strong">' + esc(S.puDone.names) + ' to ' + esc(S.puDone.who) + ' at ' + esc(S.puDone.time) + '</div><div class="small" style="opacity:.9;margin-top:4px">Take the sticker off each child as they leave.</div></div>';
+    return;
+  }
+  if (code.length < 4) { el.innerHTML = ''; return; }
+  if (!S.checkinsLoaded) { el.innerHTML = '<p class="muted">Loading today’s register…</p>'; return; }
+  const matches = S.checkins.filter(c => c.code === code);
+  if (!matches.length) {
+    el.innerHTML = '<div class="match bad"><h2>✕ No match for <span class="code">' + esc(code) + '</span></h2>' +
+      '<p style="margin:6px 0 12px"><strong>Do not release a child.</strong> Check the code with the parent (codes change every week), then fetch a leader.</p>' +
+      '<button class="btn line wide" data-act="lost-code">Find the child by name (leader)</button></div>';
+    return;
+  }
+  const inKids = matches.filter(c => c.status === 'in'), outKids = matches.filter(c => c.status !== 'in');
+  const ref = matches[0];
+  const who = [...new Set([ref.parentName, ...splitNames(ref.pickups)].filter(Boolean))];
+  if (!who.includes(S.puWho) && S.puWho !== '__other') S.puWho = who[0] || '__other';
+  const selected = inKids.filter(c => !S.puSkip.has(c.id));
+  el.innerHTML = '<div class="match ok"><h2>✓ Code matches</h2><div class="strong">Parent: ' + esc(ref.parentName) + '</div>' +
+    inKids.map(c => '<label class="kid"><input type="checkbox" data-pu="' + esc(c.id) + '"' + (S.puSkip.has(c.id) ? '' : ' checked') + '><div class="grow"><div class="name">' + esc(c.childName) + '</div><div class="row wrap">' + grpBadge(c.group) + '<span class="muted small">in at ' + esc(fmtTime(c.inAt)) + '</span>' + notesHtml(c.notes) + '</div></div></label>').join('') +
+    outKids.map(c => '<div class="kid out"><div class="grow"><div class="name">' + esc(c.childName) + '</div><div class="muted small">Collected at ' + esc(fmtTime(c.outAt)) + ' by ' + esc(c.collectedBy || 'someone') + '</div></div></div>').join('') +
+    (inKids.length
+      ? '<label class="field mt16"><span>Who is collecting?</span><select class="input" id="pu-who">' + who.map(w => '<option value="' + esc(w) + '"' + (S.puWho === w ? ' selected' : '') + '>' + esc(w) + '</option>').join('') +
+        '<option value="__other"' + (S.puWho === '__other' ? ' selected' : '') + '>Someone else (needs a leader)</option></select></label>' +
+        '<button class="btn ok wide" data-act="release"' + (selected.length ? '' : ' disabled') + '>' + (selected.length ? 'Release ' + esc(joinNames(selected.map(c => c.childName))) : 'Tick a child to release') + '</button>'
+      : '<div class="banner ok mt">Everyone with this code has been collected.</div>') +
+    '</div>';
+}
+async function release(ids, collectedBy, override, note, btn) {
+  const cs = ids.map(id => S.checkins.find(c => c.id === id)).filter(c => c && c.status === 'in');
+  if (!cs.length) { toast('Already collected.'); return; }
+  const now = Date.now();
+  await busy(btn, 'Releasing…', async () => {
+    for (const c of cs) {
+      await write(() => S.db.collection('checkins').doc(c.id).update({ status: 'out', outAt: now, outBy: S.myId || '', collectedBy, override: !!override, overrideNote: note || '' }));
+    }
+    S.puDone = { names: joinNames(cs.map(c => c.childName)), who: collectedBy, time: fmtTime(now) };
+    S.pickupCode = ''; S.puSkip.clear(); S.puWho = '';
+    if (modalOpen()) closeModal();
+    if (S.view !== 'pickup') { location.hash = '#pickup'; } else { const inp = $('#pu-code'); if (inp) inp.value = ''; renderPickup(); }
+    toast('Released ✓');
+  });
+}
+function openLostCode() {
+  S.q.lost = '';
+  openModal(sheetHead('Find a child by name') +
+    '<div class="banner warn" style="display:block">Leaders only. Release only to an adult on the child’s approved list, or once you’ve confirmed who they are.</div>' +
+    '<div class="search">' + searchIcon + '<input id="lc-q" class="input" type="search" placeholder="Child or parent name" autocomplete="off" autocorrect="off" spellcheck="false"></div>' +
+    '<div id="lc-results"></div>');
+  renderLost();
+}
+function renderLost() {
+  const el = $('#lc-results'); if (!el) return;
+  const n = S.q.lost.trim().toLowerCase();
+  let list = S.checkins.filter(c => c.status === 'in');
+  if (n) list = list.filter(c => c.childName.toLowerCase().includes(n) || c.parentName.toLowerCase().includes(n));
+  list.sort((a, b) => a.childName.localeCompare(b.childName));
+  if (!list.length) { el.innerHTML = emptyHtml(n ? 'No child found' : 'No children checked in', n ? 'Only children still in the room are listed.' : 'Nobody is waiting to be collected.'); return; }
+  el.innerHTML = '<div class="list">' + list.map(c => '<button class="card" data-act="override" data-id="' + esc(c.id) + '"><div class="row between"><span class="fname">' + esc(c.childName) + '</span>' + grpBadge(c.group) + '</div><div class="muted small mt8">Parent: ' + esc(c.parentName) + (c.pickups ? ' · Also: ' + esc(c.pickups) : '') + '</div></button>').join('') + '</div>';
+}
+function openOverride(ids) {
+  const cs = ids.map(id => S.checkins.find(c => c.id === id)).filter(c => c && c.status === 'in');
+  if (!cs.length) { toast('Already collected.'); closeModal(); return; }
+  const r = cs[0];
+  const approved = [...new Set([r.parentName, ...splitNames(r.pickups)].filter(Boolean))];
+  openModal(sheetHead('Leader release') +
+    '<div class="card"><div class="fname">' + esc(joinNames(cs.map(c => c.childName))) + '</div><div class="row wrap mt8">' + cs.map(c => grpBadge(c.group)).join('') + '</div>' +
+    '<div class="small mt"><strong>Approved adults:</strong> ' + esc(approved.join(', ') || '—') + '</div>' +
+    (digitsOnly(r.phone).length >= 7 ? '<div class="small mt8"><strong>Parent’s number:</strong> <a href="' + esc(telHref(r.phone)) + '">' + esc(r.phone) + '</a></div>' : '') + '</div>' +
+    '<form data-form="override" data-ids="' + esc(cs.map(c => c.id).join(',')) + '" novalidate class="mt16">' +
+    '<label class="field"><span>Full name of the adult collecting</span><input class="input" name="who" autocomplete="off" autocorrect="off"></label>' +
+    '<label class="field"><span>Leader approving this</span><input class="input" name="leader" autocomplete="off" autocorrect="off"></label>' +
+    '<label class="field"><span>How did you confirm who they are?</span><select class="input" name="how"><option value="">Choose…</option><option>On the approved list and known to the leader</option><option>Photo ID checked</option><option>Phoned the parent, who confirmed</option><option>Other</option></select></label>' +
+    '<div id="form-err" class="banner bad" hidden></div>' +
+    '<button class="btn ok wide" type="submit">Release</button></form>');
+}
+
+/* ----- Rooms ----- */
+function renderRooms() {
+  const el = $('#rooms-body'); if (!el) return;
+  if (!S.db || !S.checkinsLoaded) { el.innerHTML = skelHtml(4); return; }
+  const ins = S.checkins.filter(c => c.status === 'in');
+  const outs = S.checkins.filter(c => c.status !== 'in').sort((a, b) => b.outAt - a.outAt);
+  const stats = GROUPS.map(g => {
+    const n = ins.filter(c => c.group === g.id).length;
+    return '<div class="stat" style="background:' + g.soft + '"><div class="n">' + n + '</div><div class="l">' + gdot(g.id) + ' ' + g.name + ' · ' + g.ages + '</div></div>';
+  }).join('');
+  const f = S.roomFilter;
+  const seg = '<div class="seg">' + ['all', ...GROUPS.map(g => g.id)].map(id => '<button data-act="room-filter" data-id="' + id + '" class="' + (f === id ? 'on' : '') + '">' + (id === 'all' ? 'All (' + ins.length + ')' : gdot(id) + ' ' + G[id].ages) + '</button>').join('') + '</div>';
+  const shown = ins.filter(c => f === 'all' || c.group === f).sort((a, b) => (GROUPS.findIndex(g => g.id === a.group) - GROUPS.findIndex(g => g.id === b.group)) || a.childName.localeCompare(b.childName));
+  const rows = shown.length ? '<div class="list">' + shown.map(c => {
+    const by = volunteerName(c.inBy);
+    return '<div class="card"><div class="roomrow"><div class="grow"><div class="name">' + esc(c.childName) + (c.visitor ? ' <span class="tag">Visitor</span>' : '') + '</div>' +
+      '<div class="row wrap mt8">' + grpBadge(c.group) + '<span class="code small">' + esc(c.code) + '</span><span class="muted small">in ' + esc(fmtTime(c.inAt)) + (by ? ' · ' + esc(by) : '') + '</span></div>' +
+      (c.notes ? '<div class="mt8">' + notesHtml(c.notes) + '</div>' : '') + '</div>' +
+      '<button class="btn small ghost" data-act="contact" data-id="' + esc(c.id) + '">Parent</button></div></div>';
+  }).join('') + '</div>' : emptyHtml(ins.length ? 'Nobody in this group' : 'No children checked in yet', ins.length ? 'Pick another group above.' : 'Children appear here as soon as they’re checked in.');
+  const outHtml = outs.length ? '<details class="card mt16"><summary>Collected today (' + outs.length + ')<span class="muted">▾</span></summary>' + outs.map(c => {
+    const by = volunteerName(c.outBy);
+    return '<div class="outrow"><div class="row between"><strong>' + esc(c.childName) + '</strong>' + grpBadge(c.group) + '</div><div class="muted small">' + esc(fmtTime(c.outAt)) + ' · collected by ' + esc(c.collectedBy || '—') + (by ? ' · released by ' + esc(by) : '') + '</div>' +
+      (c.override ? '<div class="small" style="color:var(--warn);font-weight:800">Leader release: ' + esc(c.overrideNote) + '</div>' : '') + '</div>';
+  }).join('') + '</details>' : '';
+  el.innerHTML = '<div class="stats">' + stats + '</div>' + seg + rows + outHtml +
+    (S.checkins.length ? '<button class="btn line wide mt16" data-act="copy-register">Copy today’s register</button>' : '');
+}
+function openContact(id) {
+  const c = S.checkins.find(x => x.id === id); if (!c) return;
+  const ok = digitsOnly(c.phone).length >= 7;
+  const msg = 'Hi ' + (first(c.parentName) || '') + ', this is Kids Church. Could you come to the ' + (G[c.group] ? G[c.group].ages : 'children’s') + ' group for ' + c.childName + ', please?';
+  openModal(sheetHead('Contact parent') +
+    '<div class="card"><div class="fname">' + esc(c.parentName || 'Parent') + '</div><div class="muted small mt8">For ' + esc(c.childName) + (c.pickups ? ' · Also allowed: ' + esc(c.pickups) : '') + '</div>' +
+    (ok ? '<div class="strong mt">' + esc(c.phone) + '</div>' : '<div class="muted mt">No number saved.</div>') + '</div>' +
+    (ok ? '<div class="grid2 mt16"><a class="btn" href="' + esc(telHref(c.phone)) + '">Call</a><a class="btn wa" href="' + esc(waHref(c.phone, msg)) + '" target="_blank" rel="noopener">WhatsApp</a></div>' +
+      '<a class="btn ghost wide mt" href="' + esc(smsHref(c.phone, msg)) + '">Text (SMS)</a>' +
+      '<button class="btn line wide mt" data-act="copy" data-text="' + esc(c.phone) + '">Copy number</button>' : '') +
+    '<button class="btn line wide mt" data-act="override" data-id="' + esc(c.id) + '">Leader release (lost code)</button>');
+}
+function registerText() {
+  const q = s => '"' + str(s).replace(/"/g, '""') + '"';
+  const rows = [...S.checkins].sort((a, b) => a.inAt - b.inAt).map(c => [c.childName, G[c.group] ? G[c.group].ages : '', c.code, fmtTime(c.inAt), fmtTime(c.outAt), c.collectedBy, c.override ? c.overrideNote : '', c.notes].map(q).join(','));
+  return 'Kids Church register ' + S.today + (S.settings.churchName ? ' — ' + S.settings.churchName : '') + '\n' +
+    ['Child', 'Age group', 'Code', 'In', 'Out', 'Collected by', 'Leader release', 'Notes'].join(',') + '\n' + rows.join('\n');
+}
+
+/* ----- Families ----- */
+function renderFamilies() {
+  const el = $('#fam-list'); if (!el) return;
+  if (!S.db || !S.familiesLoaded) { el.innerHTML = skelHtml(); return; }
+  if (!S.families.size) { el.innerHTML = emptyHtml('No families yet', 'Add families here before Sunday, or during check-in.'); return; }
+  const list = familyMatches(S.q.families);
+  const kidsN = [...S.families.values()].reduce((n, f) => n + f.children.length, 0);
+  el.innerHTML = '<p class="muted small strong" style="margin:12px 0 0">' + S.families.size + ' families · ' + kidsN + ' children</p>' +
+    (list.length ? '<div class="list">' + list.map(f => '<button class="card" data-act="edit-family" data-id="' + esc(f.id) + '"><div class="row between"><span class="fname">' + esc(f.parentName || '(no name)') + '</span><span class="muted small">' + esc(maskPhone(f.phone)) + '</span></div><div class="chips">' +
+      f.children.map(k => '<span class="chip">' + gdot(k.group) + esc(k.name) + ' <span class="muted">' + esc(G[k.group] ? G[k.group].ages : '') + '</span></span>').join('') + '</div>' +
+      (f.children.some(k => k.notes) ? '<div class="mt8">' + notesHtml(f.children.filter(k => k.notes).map(k => k.name + ': ' + k.notes).join(' · ')) + '</div>' : '') + '</button>').join('') + '</div>'
+      : emptyHtml('No match', 'Try another name or number.'));
+}
+
+/* ----- Setup ----- */
+function setupHtml() {
+  return '<h1>Setup</h1><p class="sub">Settings for everyone using this register.</p>' +
+    '<form class="card" data-form="settings" novalidate>' +
+    '<label class="field"><span>Church name</span><input class="input" name="churchName" value="' + esc(S.settings.churchName) + '" placeholder="e.g. Grace Chapel" autocomplete="off"></label>' +
+    '<label class="field"><span>Country code for WhatsApp</span><input class="input" name="countryCode" value="' + esc(S.settings.countryCode) + '" inputmode="numeric" placeholder="44"></label>' +
+    '<p class="muted small" style="margin:-6px 0 14px">Numbers that start with 0 get this code added (44 = UK, 234 = Nigeria).</p>' +
+    '<button class="btn wide" type="submit">Save settings</button></form>' +
+    '<div class="card mt16"><div class="h3" style="margin-top:0">How Sunday works</div><ol class="steps">' +
+    '<li><strong>Drop-off:</strong> Check in → search the family → tap → Check in.</li>' +
+    '<li>Write the child’s <strong>name and code</strong> on a sticker and put it on their back.</li>' +
+    '<li>Send the code to the parent by WhatsApp or text, or let them photograph the screen.</li>' +
+    '<li><strong>Pickup:</strong> the parent shows the code → type it in Pickup → check it matches the sticker → Release.</li>' +
+    '<li>No code or no match? <strong>Don’t release.</strong> Fetch a leader, who uses “Parent lost their code?”.</li></ol>' +
+    '<p class="muted small">Codes are new every Sunday, so an old message or photo won’t work.</p></div>' +
+    '<div class="card mt16"><div class="h3" style="margin-top:0">Your access</div><div id="access" class="muted"></div></div>' +
+    '<div class="card mt16"><div class="h3" style="margin-top:0">Old records</div><p class="muted small" style="margin-top:0">Each Sunday’s register is kept so you can look back. Delete old ones in line with your safeguarding policy. Saved families are not affected.</p>' +
+    '<label class="field"><span>Delete registers older than</span><select class="input" id="keep-days"><option value="30">30 days</option><option value="90" selected>3 months</option><option value="365">1 year</option></select></label>' +
+    '<button class="btn dangerline wide" data-act="purge">Delete old registers</button></div>';
+}
+function renderSetupDyn() {
+  const el = $('#access'); if (!el) return;
+  if (!S.db) { el.textContent = 'Not connected.'; return; }
+  el.textContent = S.readOnly ? 'View only: you can see the register but not change it.' : (S.canWrite === true ? 'You can check children in and out on this phone.' : 'Connected.');
+}
+async function purgeOld(btn) {
+  const days = +($('#keep-days') ? $('#keep-days').value : 90) || 90;
+  const d = new Date(); d.setDate(d.getDate() - days);
+  const cutoff = todayStr(d);
+  if (btn.dataset.armed !== '1') { btn.dataset.armed = '1'; btn.textContent = 'Tap again to delete registers before ' + cutoff; setTimeout(() => { if (btn.isConnected) { btn.dataset.armed = ''; btn.textContent = 'Delete old registers'; } }, 5000); return; }
+  btn.dataset.armed = '';
+  await busy(btn, 'Deleting…', async () => {
+    let total = 0;
+    for (let round = 0; round < 30; round++) {
+      const snap = await write(() => S.db.collection('checkins').where('date', '<', cutoff).limit(200).get());
+      const docs = snap.docs.filter(x => x.exists);
+      if (!docs.length) break;
+      for (const x of docs) { await write(() => S.db.collection('checkins').doc(x.id).delete()); total++; }
+    }
+    toast(total ? 'Deleted ' + total + ' old records' : 'No records older than ' + days + ' days');
+  });
+}
+
+/* ---------- Events ---------- */
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act],[data-mode]'); if (!t) return;
+  if (t.dataset.mode) { S.submitMode = t.dataset.mode; if (!t.dataset.act) return; }
+  const act = t.dataset.act, id = t.dataset.id;
+  switch (act) {
+    case 'close': closeModal(); break;
+    case 'new-family': if (guardWrite()) openFamilyForm(null); break;
+    case 'new-family-only': if (guardWrite()) openFamilyForm(null, { saveOnly: true }); break;
+    case 'open-family': openFamilySheet(id); break;
+    case 'edit-family': openFamilyForm(id); break;
+    case 'add-kid': { const box = $('#kidrows'); box.insertAdjacentHTML('beforeend', kidRow({ id: rid(), name: '', group: '', notes: '' })); const rows = box.querySelectorAll('.kidrow'); rows[rows.length - 1].querySelector('input').focus(); break; }
+    case 'remove-kid': { const rows = document.querySelectorAll('#kidrows .kidrow'); const row = t.closest('.kidrow'); if (rows.length > 1) row.remove(); else row.querySelectorAll('input,select').forEach(i => { i.value = ''; }); break; }
+    case 'delete-family': {
+      if (!guardWrite()) break;
+      if (t.dataset.armed !== '1') { t.dataset.armed = '1'; t.textContent = 'Tap again to delete this family'; break; }
+      busy(t, 'Deleting…', async () => { await write(() => S.db.collection('families').doc(id).delete()); closeModal(); toast('Family deleted'); });
+      break;
+    }
+    case 'copy': copyText(t.dataset.text || ''); break;
+    case 'copy-register': copyText(registerText()); break;
+    case 'lost-code': openLostCode(); break;
+    case 'override': if (guardWrite()) openOverride([id]); break;
+    case 'contact': openContact(id); break;
+    case 'room-filter': S.roomFilter = id; renderRooms(); break;
+    case 'reconnect': resubscribe(); break;
+    case 'purge': if (guardWrite()) purgeOld(t); break;
+    case 'release': {
+      if (!guardWrite()) break;
+      const ids = S.checkins.filter(c => c.code === S.pickupCode && c.status === 'in' && !S.puSkip.has(c.id)).map(c => c.id);
+      if (!ids.length) break;
+      if (S.puWho === '__other') { openOverride(ids); break; }
+      release(ids, S.puWho, false, '', t);
+      break;
+    }
+  }
+});
+document.getElementById('overlay').addEventListener('click', e => { if (e.target.id === 'overlay') closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && modalOpen()) closeModal(); });
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.id === 'ci-q') { S.q.checkin = t.value; renderCheckinResults(); }
+  else if (t.id === 'fam-q') { S.q.families = t.value; renderFamilies(); }
+  else if (t.id === 'lc-q') { S.q.lost = t.value; renderLost(); }
+  else if (t.id === 'pu-code') {
+    const v = t.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
+    if (t.value !== v) t.value = v;
+    if (v !== S.pickupCode) { S.pickupCode = v; S.puSkip.clear(); S.puWho = ''; S.puDone = null; renderPickup(); if (v.length === 4) t.blur(); }
+  }
+});
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset && t.dataset.pu) { if (t.checked) S.puSkip.delete(t.dataset.pu); else S.puSkip.add(t.dataset.pu); renderPickup(); }
+  else if (t.id === 'pu-who') { S.puWho = t.value; }
+});
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  const form = e.target, kind = form.dataset.form;
+  const btn = (e.submitter && e.submitter.tagName === 'BUTTON') ? e.submitter : form.querySelector('button[type=submit]');
+  if (!guardWrite()) return;
+  if (kind === 'checkin') {
+    const fam = S.families.get(form.dataset.id); if (!fam) return;
+    const ids = [...form.querySelectorAll('input[name=kid]:checked')].map(i => i.value);
+    if (!ids.length) { toast('Tick at least one child.'); return; }
+    busy(btn, 'Checking in…', () => doCheckin(fam, ids, false));
+  } else if (kind === 'family') {
+    if (e.submitter && e.submitter.dataset.mode) S.submitMode = e.submitter.dataset.mode;
+    submitFamily(form, btn);
+  } else if (kind === 'override') {
+    const who = form.elements.namedItem('who').value.trim(), leader = form.elements.namedItem('leader').value.trim(), how = form.elements.namedItem('how').value;
+    const err = $('#form-err');
+    if (!who || !leader || !how) { err.textContent = 'Fill in all three so there’s a record of the release.'; err.hidden = false; return; }
+    release(form.dataset.ids.split(','), who.slice(0, 80), true, ('Approved by ' + leader + ' — ' + how).slice(0, 240), btn);
+  } else if (kind === 'settings') {
+    const name = form.elements.namedItem('churchName').value.trim().slice(0, 60);
+    const cc = digitsOnly(form.elements.namedItem('countryCode').value).slice(0, 4) || '44';
+    busy(btn, 'Saving…', async () => { await write(() => S.db.doc('settings/main').set({ churchName: name, countryCode: cc, updatedAt: Date.now() })); toast('Settings saved'); });
+  }
+});
+function route() { const h = location.hash.replace('#', ''); S.view = VIEWS.includes(h) ? h : 'checkin'; }
+window.addEventListener('hashchange', () => { route(); if (modalOpen()) closeModal(); renderView(); window.scrollTo(0, 0); });
+
+/* ---------- Data connection ---------- */
+function checkLive() {
+  if (S.liveF && S.liveC) { S.status = 'live'; clearTimeout(S.loadTimer); refreshChrome(); }
+}
+function onSubError(e) {
+  S.status = 'offline';
+  if (e && e.code === 'invalid_argument') { /* bad query – should not happen */ }
+  refresh();
+}
+function subscribeToday() {
+  if (S.unsubToday) { try { S.unsubToday(); } catch (e) {} }
+  S.checkinsLoaded = false; S.liveC = false;
+  S.unsubToday = S.db.collection('checkins').where('date', '==', S.today).onSnapshot(snap => {
+    S.checkins = snap.docs.filter(d => d.exists).map(d => normCheckin(d.id, d.data()));
+    S.checkinsLoaded = true;
+    if (!snap.metadata.fromCache && !S.liveC) { S.liveC = true; checkLive(); }
+    refresh(); resolveNames();
+  }, onSubError);
+}
+function subscribe() {
+  S.liveF = false; S.liveC = false; S.status = 'connecting';
+  clearTimeout(S.loadTimer);
+  S.loadTimer = setTimeout(() => { if (S.status === 'connecting') { S.status = 'stale'; refreshChrome(); } }, 10000);
+  S.unsubs.push(S.db.collection('families').onSnapshot(snap => {
+    const m = new Map();
+    snap.docs.forEach(d => { if (d.exists) m.set(d.id, normFamily(d.id, d.data())); });
+    S.families = m; S.familiesLoaded = true;
+    if (!snap.metadata.fromCache && !S.liveF) { S.liveF = true; checkLive(); }
+    refresh();
+  }, onSubError));
+  S.unsubs.push(S.db.doc('settings/main').onSnapshot(d => {
+    if (d.exists) { const x = d.data() || {}; S.settings = { churchName: str(x.churchName).slice(0, 60), countryCode: digitsOnly(x.countryCode).slice(0, 4) || '44' }; }
+    renderHeader();
+    const a = document.activeElement;
+    if (S.view === 'setup' && !(a && a.closest && a.closest('form[data-form=settings]'))) renderView();
+  }, () => {}));
+  subscribeToday();
+  refreshChrome();
+}
+function resubscribe() {
+  S.unsubs.forEach(u => { try { u(); } catch (e) {} }); S.unsubs = [];
+  subscribe();
+}
+async function resolveNames() {
+  if (!S.user || typeof S.user.profiles !== 'function') return;
+  const ids = new Set(); S.checkins.forEach(c => { if (c.inBy) ids.add(c.inBy); if (c.outBy) ids.add(c.outBy); });
+  const need = [...ids].filter(id => !(id in S.names) && !S.nameReq.has(id)).slice(0, 64);
+  if (!need.length) return;
+  need.forEach(id => S.nameReq.add(id));
+  try { const ps = await S.user.profiles(need); need.forEach(id => { S.names[id] = (ps && ps[id] && ps[id].name) || ''; }); } catch (e) {}
+  if (S.view === 'rooms') renderRooms();
+}
+setInterval(() => {
+  const t = todayStr();
+  if (t !== S.today && S.db) { S.today = t; S.pickupCode = ''; S.puDone = null; subscribeToday(); renderView(); }
+  renderHeader();
+}, 60000);
+
+async function init() {
+  route(); renderView();
+  let tries = 0;
+  while (!(window.claude && typeof window.claude.use === 'function') && tries < 30) { await sleep(100); tries++; }
+  if (!(window.claude && typeof window.claude.use === 'function')) { S.status = 'signedout'; renderView(); return; }
+  try { S.user = await window.claude.use('user'); } catch (e) { S.user = null; }
+  try { S.db = await window.claude.use('db'); } catch (e) { S.db = null; }
+  if (!S.db) { S.status = 'signedout'; renderView(); return; }
+  if (S.user) {
+    try { S.myId = (await S.user.id()) || null; } catch (e) {}
+    try { const c = await S.user.can('data.write'); S.canWrite = (c === true || c === false) ? c : null; } catch (e) {}
+  }
+  if (S.canWrite === false) S.readOnly = true;
+  subscribe();
+  renderView();
+}
+init();
+})();
+</script>
+</body>
+</html>

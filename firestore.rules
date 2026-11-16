@@ -1,0 +1,11 @@
+rules_version = '2';
+// Only signed-in volunteers can read or change the register.
+// Create volunteer accounts yourself in the Firebase console and keep
+// public sign-up switched off, so nobody else can get in.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}

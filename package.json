@@ -1,0 +1,32 @@
+{
+  "name": "kids-church-checkin",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Phone app for children's church check-in and photo-verified pickup.",
+  "scripts": {
+    "app": "node dev/app-server.js",
+    "test:app": "node tests/app.e2e.js",
+    "android:sync": "cap sync android",
+    "android:open": "cap open android",
+    "android:apk": "cap sync android && cd android && gradlew assembleDebug",
+    "dev": "node dev/server.js",
+    "test": "python3 tests/e2e.py",
+    "brand": "node scripts/brand.js && cap sync android"
+  },
+  "engines": {
+    "node": ">=16"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.2.3",
+    "@capacitor/app": "^6.0.3",
+    "@capacitor/core": "^6.2.3",
+    "@capacitor/status-bar": "^6.0.3"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.2.3",
+    "jsqr": "^1.4.0",
+    "playwright-core": "^1.65.1",
+    "qrcode-generator": "^2.0.4",
+    "sharp": "^0.35.5"
+  }
+}
