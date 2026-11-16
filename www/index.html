@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4338CA">
+<title>Kids Church Check-In</title>
+<link rel="icon" href="icon.png" type="image/png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></div>
+    <div class="grow">
+      <div class="church" id="church">Kids Church</div>
+      <div class="date" id="date"></div>
+    </div>
+    <div class="pill" id="status"><span class="dot" id="dot"></span><span id="statusText">Starting…</span></div>
+  </div>
+</header>
+
+<main>
+  <div id="banner"></div>
+  <div id="view"></div>
+</main>
+
+<nav class="tabs" aria-label="Sections">
+  <a href="#checkin" data-view="checkin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg><span>Check in</span></a>
+  <a href="#rooms" data-view="rooms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>Rooms</span></a>
+  <a href="#pickup" data-view="pickup" class="fab"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg></i><span>Pickup</span></a>
+  <a href="#families" data-view="families"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Families</span></a>
+  <a href="#setup" data-view="setup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg><span>Setup</span></a>
+</nav>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true"><div class="sheet" id="sheet"></div></div>
+<div class="zoom" id="zoom" hidden><img alt=""></div>
+<div class="panel" id="notice" hidden><div class="in"><div class="sheet-head"><h2>Privacy notice</h2><button class="iconbtn" data-act="close-notice" aria-label="Close">×</button></div><div class="txt" id="notice-text"></div><button class="btn wide mt16" data-act="close-notice">Done</button></div></div>
+<div class="lock" id="lock" hidden><form data-form="unlock" novalidate><div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><h2>Register locked</h2><p>Enter the app passcode.</p><input name="code" type="password" inputmode="numeric" autocomplete="off" maxlength="8" aria-label="App passcode"><button class="btn wide" type="submit">Unlock</button><div class="e" id="lock-err" role="alert"></div></form></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="js/brand.js"></script>
+<script src="js/config.js"></script>
+<script src="vendor/qrcode.js"></script>
+<script src="vendor/jsQR.js"></script>
+<script src="js/backend.js"></script>
+<script src="js/camera.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
